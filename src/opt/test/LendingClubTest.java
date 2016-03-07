@@ -21,8 +21,9 @@ import java.text.*;
  */
 public class LendingClubTest {
     private static Instance[] instances = initializeInstances();
+    private static Instance[] instances_test = initializeInstancesTest();
 
-    private static int inputLayer = 7, hiddenLayer = 5, outputLayer = 1, trainingIterations = 1000;
+    private static int inputLayer = 7, hiddenLayer = 5, outputLayer = 1, trainingIterations = 2000;
     private static BackPropagationNetworkFactory factory = new BackPropagationNetworkFactory();
 
     private static ErrorMeasure measure = new SumOfSquaresError();
@@ -75,10 +76,35 @@ public class LendingClubTest {
             testingTime = end - start;
             testingTime /= Math.pow(10,9);
 
-            results +=  "\nResults for " + oaNames[i] + ": \nCorrectly classified " + correct + " instances." +
+            results +=  "\nTraining Results for " + oaNames[i] + ": \nCorrectly classified " + correct + " instances." +
                         "\nIncorrectly classified " + incorrect + " instances.\nPercent correctly classified: "
                         + df.format(correct/(correct+incorrect)*100) + "%\nTraining time: " + df.format(trainingTime)
                         + " seconds\nTesting time: " + df.format(testingTime) + " seconds\n";
+
+/*Adding for-loop to calculate test error as well
+*/
+            predicted = 0;
+            actual = 0;
+            correct = 0;
+            incorrect = 0;
+            start = System.nanoTime();            
+            for(int j = 0; j < instances_test.length; j++) {
+                networks[i].setInputValues(instances_test[j].getData());
+                networks[i].run();
+
+                predicted = Double.parseDouble(instances_test[j].getLabel().toString());
+                actual = Double.parseDouble(networks[i].getOutputValues().toString());
+
+                double trash = Math.abs(predicted - actual) < 0.5 ? correct++ : incorrect++;
+            }     
+            end = System.nanoTime();
+            testingTime = end - start;
+            testingTime /= Math.pow(10,9);
+
+            results +=  "\nTesting Results for " + oaNames[i] + ": \nCorrectly classified " + correct + " instances." +
+                        "\nIncorrectly classified " + incorrect + " instances.\nPercent correctly classified: "
+                        + df.format(correct/(correct+incorrect)*100) + " %\nTesting time: " + df.format(testingTime) + " seconds\n";
+
         }
 
         System.out.println(results);
@@ -86,7 +112,7 @@ public class LendingClubTest {
 
     private static void train(OptimizationAlgorithm oa, BackPropagationNetwork network, String oaName) {
         System.out.println("\nError results for " + oaName + "\n---------------------------");
-
+        List<Double> errorList = new ArrayList<Double>();
         for(int i = 0; i < trainingIterations; i++) {
             oa.train();
 
@@ -99,17 +125,61 @@ public class LendingClubTest {
                 example.setLabel(new Instance(Double.parseDouble(network.getOutputValues().toString())));
                 error += measure.value(output, example);
             }
-
+            errorList.add(error);
             //System.out.println(df.format(error));
         }
+        //Compute average of errorList
+        Double sum = 0d;
+        Double avg_error =0d;
+        for (Double vals : errorList) {
+            sum += vals;
+        }
+         avg_error =  sum / errorList.size();
+         System.out.println(df.format(avg_error));
     }
 
     private static Instance[] initializeInstances() {
 
-        double[][][] attributes = new double[1057][][];
+        double[][][] attributes = new double[700][][];
 
         try {
             BufferedReader br = new BufferedReader(new FileReader(new File("src/opt/test/lc_data.txt")));
+
+            for(int i = 0; i < attributes.length; i++) {
+                Scanner scan = new Scanner(br.readLine());
+                scan.useDelimiter(",");
+
+                attributes[i] = new double[2][];
+                attributes[i][0] = new double[7]; // 7 attributes
+                attributes[i][1] = new double[1];
+
+                for(int j = 0; j < 7; j++)
+                    attributes[i][0][j] = Double.parseDouble(scan.next());
+
+                attributes[i][1][0] = Double.parseDouble(scan.next());
+            }
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        Instance[] instances = new Instance[attributes.length];
+
+        for(int i = 0; i < instances.length; i++) {
+            instances[i] = new Instance(attributes[i][0]);
+            // classifications range from 0 to 1; split into 0 and 1
+            instances[i].setLabel(new Instance(attributes[i][1][0] < 1 ? 0 : 1));
+        }
+
+        return instances;
+    }
+
+    private static Instance[] initializeInstancesTest() {
+
+        double[][][] attributes = new double[357][][];
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(new File("src/opt/test/lc_data_test.txt")));
 
             for(int i = 0; i < attributes.length; i++) {
                 Scanner scan = new Scanner(br.readLine());

@@ -1,4 +1,6 @@
 #!/bin/bash 
+ant
+
 COUNTER=0
 while [  $COUNTER -lt 1 ]; do
     java -cp ABAGAIL.jar opt.test.LendingClubTest
