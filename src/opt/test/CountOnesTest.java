@@ -31,14 +31,14 @@ import java.io.*;
 import java.text.*;
 
 /**
- * 
+ *
  * @author Andrew Guillory gtg008g@mail.gatech.edu
  * @version 1.0
  */
 public class CountOnesTest {
     /** The n value */
-    private static final int N = 80;
-    
+    private static final int N = 120;
+
     public static void main(String[] args) {
         List<Double> rhctimeList = new ArrayList<Double>();
         List<Double> satimeList = new ArrayList<Double>();
@@ -56,12 +56,12 @@ public class CountOnesTest {
             NeighborFunction nf = new DiscreteChangeOneNeighbor(ranges);
             MutationFunction mf = new DiscreteChangeOneMutation(ranges);
             CrossoverFunction cf = new UniformCrossOver();
-            Distribution df = new DiscreteDependencyTree(.1, ranges); 
+            Distribution df = new DiscreteDependencyTree(.1, ranges);
             HillClimbingProblem hcp = new GenericHillClimbingProblem(ef, odd, nf);
             GeneticAlgorithmProblem gap = new GenericGeneticAlgorithmProblem(ef, odd, mf, cf);
             ProbabilisticOptimizationProblem pop = new GenericProbabilisticOptimizationProblem(ef, odd, df);
-            
-            RandomizedHillClimbing rhc = new RandomizedHillClimbing(hcp);      
+
+            RandomizedHillClimbing rhc = new RandomizedHillClimbing(hcp);
             FixedIterationTrainer fit = new FixedIterationTrainer(rhc, 200);
             double start = System.nanoTime(), end, trainingTime;
             fit.train();
@@ -71,7 +71,7 @@ public class CountOnesTest {
             rhctimeList.add(trainingTime);
             rhcList.add(ef.value(rhc.getOptimal()));
             /*System.out.println(ef.value(rhc.getOptimal()));*/
-            
+
             SimulatedAnnealing sa = new SimulatedAnnealing(100, .95, hcp);
             fit = new FixedIterationTrainer(sa, 200);
             start = System.nanoTime();
@@ -82,8 +82,8 @@ public class CountOnesTest {
             satimeList.add(trainingTime);
             saList.add(ef.value(sa.getOptimal()));
             /*System.out.println(ef.value(sa.getOptimal()));*/
-            
-            StandardGeneticAlgorithm ga = new StandardGeneticAlgorithm(20, 20, 0, gap);
+
+            StandardGeneticAlgorithm ga = new StandardGeneticAlgorithm(20, 20, 20, gap);
             fit = new FixedIterationTrainer(ga, 300);
             start = System.nanoTime();
             fit.train();
@@ -93,7 +93,7 @@ public class CountOnesTest {
             gatimeList.add(trainingTime);
             /*System.out.println(ef.value(ga.getOptimal()));*/
             gaList.add(ef.value(ga.getOptimal()));
-            
+
             MIMIC mimic = new MIMIC(50, 10, pop);
             fit = new FixedIterationTrainer(mimic, 100);
             start = System.nanoTime();
@@ -115,6 +115,8 @@ public class CountOnesTest {
          avg_value =  sum / rhcList.size();
          System.out.println("RHC");
          System.out.println(avg_value);
+         System.out.println("RHC Max Value");
+         System.out.println(Collections.max(rhcList));
 
         /*Average Value SA*/
         sum = 0d;
@@ -125,6 +127,8 @@ public class CountOnesTest {
          avg_value =  sum / saList.size();
          System.out.println("SA");
          System.out.println(avg_value);
+         System.out.println("SA Max Value");
+         System.out.println(Collections.max(saList));
 
         /*Average Value GA*/
         sum = 0d;
@@ -135,6 +139,8 @@ public class CountOnesTest {
          avg_value =  sum / gaList.size();
          System.out.println("GA");
          System.out.println(avg_value);
+         System.out.println("GA Max Value");
+         System.out.println(Collections.max(gaList));
 
         /*Average Value MIMIC*/
         sum = 0d;
@@ -145,6 +151,8 @@ public class CountOnesTest {
          avg_value =  sum / mimicList.size();
          System.out.println("MIMIC");
          System.out.println(avg_value);
+         System.out.println("MIMIC Max Value");
+         System.out.println(Collections.max(mimicList));
 
 /*
 *

@@ -37,10 +37,10 @@ import java.text.*;
  */
 public class FourPeaksTest {
     /** The n value */
-    private static final int N = 20;
+    private static final int N = 100;
     /** The t value */
     private static final int T = N / 5;
-    
+
     public static void main(String[] args) {
         List<Double> rhctimeList = new ArrayList<Double>();
         List<Double> satimeList = new ArrayList<Double>();
@@ -51,7 +51,7 @@ public class FourPeaksTest {
         List<Double> gaList = new ArrayList<Double>();
         List<Double> mimicList = new ArrayList<Double>();
 
-        for(int i = 0; i < 10; i++) {        
+        for(int i = 0; i < 10; i++) {
             int[] ranges = new int[N];
             Arrays.fill(ranges, 2);
             EvaluationFunction ef = new FourPeaksEvaluationFunction(T);
@@ -59,12 +59,12 @@ public class FourPeaksTest {
             NeighborFunction nf = new DiscreteChangeOneNeighbor(ranges);
             MutationFunction mf = new DiscreteChangeOneMutation(ranges);
             CrossoverFunction cf = new SingleCrossOver();
-            Distribution df = new DiscreteDependencyTree(.1, ranges); 
+            Distribution df = new DiscreteDependencyTree(.1, ranges);
             HillClimbingProblem hcp = new GenericHillClimbingProblem(ef, odd, nf);
             GeneticAlgorithmProblem gap = new GenericGeneticAlgorithmProblem(ef, odd, mf, cf);
             ProbabilisticOptimizationProblem pop = new GenericProbabilisticOptimizationProblem(ef, odd, df);
-            
-            RandomizedHillClimbing rhc = new RandomizedHillClimbing(hcp);      
+
+            RandomizedHillClimbing rhc = new RandomizedHillClimbing(hcp);
             FixedIterationTrainer fit = new FixedIterationTrainer(rhc, 200000);
             double start = System.nanoTime(), end, trainingTime;
             fit.train();
@@ -73,9 +73,9 @@ public class FourPeaksTest {
             trainingTime /= Math.pow(10,9);
             rhctimeList.add(trainingTime);
             rhcList.add(ef.value(rhc.getOptimal()));
-            
+
             /*System.out.println("RHC: " + ef.value(rhc.getOptimal()));*/
-            
+
             SimulatedAnnealing sa = new SimulatedAnnealing(1E11, .95, hcp);
             fit = new FixedIterationTrainer(sa, 200000);
             start = System.nanoTime();
@@ -87,7 +87,7 @@ public class FourPeaksTest {
             saList.add(ef.value(sa.getOptimal()));
 
             /*System.out.println("SA: " + ef.value(sa.getOptimal()));*/
-            
+
             StandardGeneticAlgorithm ga = new StandardGeneticAlgorithm(200, 100, 10, gap);
             fit = new FixedIterationTrainer(ga, 1000);
             start = System.nanoTime();
@@ -98,10 +98,10 @@ public class FourPeaksTest {
             gatimeList.add(trainingTime);
             gaList.add(ef.value(ga.getOptimal()));
             /*System.out.println("GA: " + ef.value(ga.getOptimal()));*/
-            
+
             MIMIC mimic = new MIMIC(200, 20, pop);
             fit = new FixedIterationTrainer(mimic, 1000);
-            start = System.nanoTime();           
+            start = System.nanoTime();
             fit.train();
             end = System.nanoTime();
             trainingTime = end - start;
@@ -120,6 +120,8 @@ public class FourPeaksTest {
          avg_value =  sum / rhcList.size();
          System.out.println("RHC");
          System.out.println(avg_value);
+         System.out.println("RHC Max Value");
+         System.out.println(Collections.max(rhcList));
 
         /*Average Value SA*/
         sum = 0d;
@@ -130,6 +132,8 @@ public class FourPeaksTest {
          avg_value =  sum / saList.size();
          System.out.println("SA");
          System.out.println(avg_value);
+         System.out.println("SA Max Value");
+         System.out.println(Collections.max(saList));
 
         /*Average Value GA*/
         sum = 0d;
@@ -140,6 +144,8 @@ public class FourPeaksTest {
          avg_value =  sum / gaList.size();
          System.out.println("GA");
          System.out.println(avg_value);
+         System.out.println("GA Max Value");
+         System.out.println(Collections.max(gaList));
 
         /*Average Value MIMIC*/
         sum = 0d;
@@ -150,6 +156,8 @@ public class FourPeaksTest {
          avg_value =  sum / mimicList.size();
          System.out.println("MIMIC");
          System.out.println(avg_value);
+         System.out.println("MIMIC Max Value");
+         System.out.println(Collections.max(mimicList));
 
 /*
 *
